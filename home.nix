@@ -48,9 +48,10 @@
       "b"   = "branch";
       "cob" = "checkout -b";
     };
-
+    
     extraConfig = {
       init.defaultBranch = "main";
+      pull.rebase = true;
     };
 
   };
