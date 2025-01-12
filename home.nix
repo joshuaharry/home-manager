@@ -97,7 +97,7 @@
       setopt PROMPT_SUBST
 
       # Extremely tricky prompt substitution magic.
-      PROMPT="%F{green}%*%f %F{blue}%~%f %F{red}''$''\{vcs_info_msg_0_''\}%f''$ "
+      PROMPT="%F{green}%@%f %F{blue}%~%f %F{red}''$''\{vcs_info_msg_0_''\}%f''$ "
 
       # Set some nice aliases.
       alias aliases='nvim ~/.config/home-manager/home.nix'
@@ -105,6 +105,7 @@
       alias g='git'
       alias home='nvim ~/.config/home-manager/home.nix'
       alias hs='home-manager switch'
+      alias switch='home-manager switch'
       alias l='eza -l'
       alias lh='eza -l- a'
       alias ls='eza -l'
