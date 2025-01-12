@@ -48,6 +48,8 @@
       "sl"  = "log --pretty=format:'%C(bold cyan)%h%Creset -%C(white)%d%Creset %s %Cgreen(%cr) %C(yellow)<%an>%Creset' --abbrev-commit -n 10";
       "b"   = "branch";
       "cob" = "checkout -b";
+      "pu"  = "push";
+      "poh" = "!git push --set-upstream origin";
     };
     
     extraConfig = {
@@ -100,6 +102,7 @@
       # Set some nice aliases.
       alias aliases='nvim ~/.config/home-manager/home.nix'
       alias c='clear'
+      alias g='git'
       alias home='nvim ~/.config/home-manager/home.nix'
       alias hs='home-manager switch'
       alias l='eza -l'
