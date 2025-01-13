@@ -68,7 +68,6 @@
       cmp-nvim-lsp
       nvim-snippy
       cmp-snippy
-
     ];
 
     # Home manager expects vimscript, not lua.
