@@ -26,9 +26,8 @@
     pkgs.nixpkgs-fmt
 
     # Node JS
-    # NOTE: We can't have a pseudo-global Node JS dependency, because that
-    # breaks autoformatting with prettier in Neovim. Instead, set it to the
-    # shell.nix file of the project you're developing.
+    pkgs.nodejs_22
+    pkgs.nodePackages.prettier
     pkgs.typescript-language-server
     pkgs.vscode-langservers-extracted
     pkgs.nodePackages.prettier
@@ -53,8 +52,8 @@
     plugins = with pkgs.vimPlugins; [
       # Fuzzy searching
       telescope-nvim
-      # Autoformatting, by Google
-      vim-codefmt
+      # Autoformatting
+      vim-autoformat
       # Autopairs
       lexima-vim
       # Close HTML tags (e.g., <p> -> <p></p>)
@@ -109,25 +108,7 @@
             nnoremap <silent> <leader>sg <cmd>lua require('telescope.builtin').live_grep()<CR>
 
             " Formatting
-            nnoremap <silent> <leader>p :FormatCode<CR>
-            augroup autoformat_settings
-                autocmd FileType bzl AutoFormatBuffer buildifier
-                autocmd FileType c,cpp,proto,arduino AutoFormatBuffer clang-format
-                autocmd FileType clojure AutoFormatBuffer cljstyle
-                autocmd FileType dart AutoFormatBuffer dartfmt
-                autocmd FileType elixir,eelixir,heex AutoFormatBuffer mixformat
-                autocmd FileType go AutoFormatBuffer gofmt
-                autocmd FileType haskell AutoFormatBuffer ormolu
-                " Alternative for web languages: prettier
-                autocmd FileType html,css,scss,less,json AutoFormatBuffer prettier
-                autocmd FileType markdown AutoFormatBuffer prettier
-                autocmd FileType javascript,typescript,typescriptreact,vue AutoFormatBuffer prettier
-                autocmd FileType python AutoFormatBuffer ruff
-                autocmd FileType ruby AutoFormatBuffer rubocop
-                autocmd FileType rust AutoFormatBuffer rustfmt
-                autocmd FileType vue AutoFormatBuffer prettier
-            augroup END
-
+            nnoremap <silent> <leader>p :Autoformat<CR>
 
             lua << EOF
       local lspconfig = require('lspconfig')
