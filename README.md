@@ -12,7 +12,7 @@ nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs
 nix-channel --update
 ```
 
-3. Follow the official instructions to install [home manager.](https://nix-community.github.io/home-manager/index.xhtml#sec-install-standalone) 
+3. Follow the official instructions to install [home manager.](https://nix-community.github.io/home-manager/index.xhtml#sec-install-standalone)
 
 4. Run:
 
