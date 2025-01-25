@@ -26,7 +26,7 @@
     pkgs.nixpkgs-fmt
 
     # Node JS
-    # NOTE: We can't have a pseudo-global Node JS dependency, because that 
+    # NOTE: We can't have a pseudo-global Node JS dependency, because that
     # breaks autoformatting with prettier in Neovim. Instead, set it to the
     # shell.nix file of the project you're developing.
     pkgs.typescript-language-server
@@ -61,6 +61,8 @@
       vim-closetag
       # TypeScript
       yats-vim
+      # Treesitter
+      nvim-treesitter
 
       # Autocomplete
       nvim-lspconfig
@@ -85,6 +87,15 @@
             " Set the leader key to space.
             let mapleader = " "
             let maplocalleader = ","
+
+            " Highlight trailing whitespace
+            highlight ExtraWhitespace ctermbg=red guibg=red
+            match ExtraWhitespace /\s\+$/
+
+            " Automatically refresh the highlight when switching buffers or editing
+            autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+            autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+            autocmd InsertEnter * match none
 
             " Add some nice keybindings.
             nnoremap <silent> q :q<CR>
@@ -260,7 +271,7 @@
       alias hs='home-manager switch'
       alias switch='home-manager switch'
       alias l='eza -l'
-      alias lh='eza -l- a'
+      alias lh='eza -l -a'
       alias ls='eza -l'
       alias reload='home-manager switch'
       alias rimraf='rm -rf'
