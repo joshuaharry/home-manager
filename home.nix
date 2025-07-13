@@ -72,6 +72,35 @@
     font_size 18.0
   '';
 
+  # Configure Ghostty
+  home.file.".config/ghostty/config".text = ''
+     keybind = cmd+a=text:\x1ba
+     keybind = cmd+b=text:\x1bb
+     keybind = cmd+c=text:\x1bc
+     keybind = cmd+d=text:\x1bd
+     keybind = cmd+e=text:\x1be
+     keybind = cmd+f=text:\x1bf
+     keybind = cmd+g=text:\x1bg
+     keybind = cmd+h=text:\x1bh
+     keybind = cmd+i=text:\x1bi
+     keybind = cmd+j=text:\x1bj
+     keybind = cmd+k=text:\x1bk
+     keybind = cmd+l=text:\x1bl
+     keybind = cmd+m=text:\x1bm
+     keybind = cmd+n=text:\x1bn
+     keybind = cmd+o=text:\x1bo
+     keybind = cmd+p=text:\x1bp
+     keybind = cmd+q=text:\x1bq
+     keybind = cmd+s=text:\x1bs
+     keybind = cmd+t=text:\x1bt
+     keybind = cmd+u=text:\x1bu
+     keybind = cmd+v=text:\x1bv
+     keybind = cmd+w=text:\x1bw
+     keybind = cmd+x=text:\x1bx
+     keybind = cmd+y=text:\x1by
+     keybind = cmd+z=text:\x1bz
+  '';
+
   # Configure neovim
   programs.neovim = {
     enable = true;
@@ -88,10 +117,10 @@
       copilot-vim
       # Fuzzy searching
       telescope-nvim
-      # Autoformatting
-      vim-autoformat
       # Autopairs
       lexima-vim
+      # Formatting
+      conform-nvim
       # Close HTML tags (e.g., <p> -> <p></p>)
       vim-closetag
       # TypeScript
@@ -143,7 +172,13 @@
             nnoremap <silent> <leader>t :FloatermNew<CR>
 
             " Formatting
-            nnoremap <silent> <leader>p :Autoformat<CR>
+            nnoremap <silent> <leader>p :Format<CR>
+
+            " Closing windows
+            nnoremap <silent> <leader>d :close<CR>
+
+            " Copilot Chat Toggle
+            vnoremap <silent> <leader>c :CopilotChat<CR>
 
             " Colorscheme
             colorscheme nightfox
@@ -215,9 +250,46 @@
         })
       })
 
-      require("CopilotChat").setup({})
-      EOF
+      conform = require("conform")
+      
+      conform.setup({
+        log_level = vim.log.levels.DEBUG,
+        formatters = {
+          ruff_format = {
+            command = "ruff",
+            args = {
+              "format",
+              "--stdin-filename",
+              "$FILENAME",
+              "-",
+            },
+            stdin = true,
+          },
+        },
+        formatters_by_ft = {
+          python = { "ruff_format", lsp_format = "fallback" },
+          rust = { "rustfmt", lsp_format = "fallback" },
+          javascript = { "prettier", stop_after_first = true },
+          typescript = { "prettier", stop_after_first = true },
+          typescriptreact = { "prettier", stop_after_first = true },
+        },
+      })
 
+      vim.api.nvim_create_user_command("Format", function()
+        require("conform").format({ lsp_fallback = true })
+      end, {})
+
+      require("CopilotChat").setup({})
+
+      require("telescope").setup({
+        defaults = {
+          file_ignore_patterns = {
+            "node_modules",
+          },
+        },
+      })
+
+      EOF
     '';
   };
 
