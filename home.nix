@@ -18,19 +18,21 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = [
-    pkgs.direnv
     pkgs.eza
     pkgs.lf
     pkgs.gh
+    pkgs.fzf
     pkgs.ripgrep
     pkgs.nixpkgs-fmt
+    pkgs.jetbrains-mono
+    pkgs.just
+    pkgs.btop
 
     # Node JS
     pkgs.nodejs_22
     pkgs.nodePackages.prettier
     pkgs.typescript-language-server
     pkgs.vscode-langservers-extracted
-    pkgs.nodePackages.prettier
 
     # Python
     pkgs.python313
@@ -38,6 +40,37 @@
     pkgs.ruff
     pkgs.uv
   ];
+
+  # Configure direnv
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+  };
+
+  # Configure kitty
+  home.file.".config/kitty/kitty.conf".text = ''
+    enabled_layouts horizontal
+
+    map cmd+1 goto_tab 1
+    map cmd+2 goto_tab 2
+    map cmd+3 goto_tab 3
+    map cmd+4 goto_tab 4
+    map cmd+5 goto_tab 5
+    map cmd+6 goto_tab 6
+    map cmd+7 goto_tab 7
+    map cmd+8 goto_tab 8
+    map cmd+9 goto_tab 9
+
+    map cmd+n send_text all \x0e
+    map cmd+p send_text all \x10
+
+    map cmd+d close_window
+    map cmd+j next_window
+    map cmd+k previous_window
+
+    font_size 18.0
+  '';
 
   # Configure neovim
   programs.neovim = {
@@ -50,6 +83,9 @@
     vimdiffAlias = true;
 
     plugins = with pkgs.vimPlugins; [
+      # AI
+      CopilotChat-nvim
+      copilot-vim
       # Fuzzy searching
       telescope-nvim
       # Autoformatting
@@ -62,9 +98,13 @@
       yats-vim
       # Treesitter
       nvim-treesitter
-
+      # Colorscheme
+      nightfox-nvim
+      # Floating terminal
+      vim-floaterm
       # Autocomplete
       nvim-lspconfig
+
       nvim-cmp
       cmp-nvim-lsp
       nvim-snippy
@@ -87,28 +127,26 @@
             let mapleader = " "
             let maplocalleader = ","
 
-            " Highlight trailing whitespace
-            highlight ExtraWhitespace ctermbg=red guibg=red
-            match ExtraWhitespace /\s\+$/
-
-            " Automatically refresh the highlight when switching buffers or editing
-            autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
-            autocmd InsertLeave * match ExtraWhitespace /\s\+$/
-            autocmd InsertEnter * match none
-
             " Add some nice keybindings.
             nnoremap <silent> q :q<CR>
             nnoremap <silent> <leader>w <C-w><C-w>
             nnoremap <silent> <leader>j :bnext<CR>
             nnoremap <silent> <leader>k :bprev<CR>
             nnoremap <silent> <leader>f za
+            nnoremap <silent> <leader>c :noh<CR>
 
             " Telescope
             nnoremap <silent> <leader>sf <cmd>lua require('telescope.builtin').find_files()<CR>
             nnoremap <silent> <leader>sg <cmd>lua require('telescope.builtin').live_grep()<CR>
 
+            " Float term
+            nnoremap <silent> <leader>t :FloatermNew<CR>
+
             " Formatting
             nnoremap <silent> <leader>p :Autoformat<CR>
+
+            " Colorscheme
+            colorscheme nightfox
 
             lua << EOF
       local lspconfig = require('lspconfig')
@@ -119,6 +157,7 @@
 
       -- Set up jump to definition
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, { noremap = true, silent = true })
+      vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { noremap = true, silent = true })
 
       -- Make error messages appear inside popups
       vim.o.updatetime = 250
@@ -176,7 +215,9 @@
         })
       })
 
+      require("CopilotChat").setup({})
       EOF
+
     '';
   };
 
@@ -198,25 +239,6 @@
       init.defaultBranch = "main";
       pull.rebase = true;
     };
-
-  };
-
-  # Configure kitty
-  programs.kitty = {
-    enable = true;
-    extraConfig = ''
-      map cmd+1 goto_tab 1
-      map cmd+2 goto_tab 2
-      map cmd+3 goto_tab 3
-      map cmd+4 goto_tab 4
-      map cmd+5 goto_tab 5
-      map cmd+6 goto_tab 6
-      map cmd+7 goto_tab 7
-      map cmd+8 goto_tab 8
-      map cmd+9 goto_tab 9
-      map cmd+n send_text all \x0e
-      map cmd+p send_text all \x10
-    '';
   };
 
   # Configure zsh
@@ -232,11 +254,15 @@
         src = pkgs.zsh-autosuggestions;
       }
     ];
-    initExtra = ''
+
+    initContent = ''
       autoload -Uz vcs_info
       precmd() { vcs_info }
       zstyle ":vcs_info:git:*" formats "%b "
       setopt PROMPT_SUBST
+
+      # Allow unfree packages
+      export NIXPKGS_ALLOW_UNFREE=1
 
       # Set the prompt. This is much harder than it should be because we
       # have to account for the fact that everything is in a single nix
@@ -246,22 +272,38 @@
       # Set some nice aliases.
       alias aliases='nvim ~/.config/home-manager/home.nix'
       alias c='clear'
+      alias e='exit'
       alias g='git'
+      alias gp='cd "$(cat ~/.config/current_project)"'
       alias home='nvim ~/.config/home-manager/home.nix'
-      alias vimrc='nvim ~/.config/home-manager/home.nix'
       alias hs='home-manager switch'
-      alias switch='home-manager switch'
       alias l='eza -l'
       alias lh='eza -l -a'
       alias ls='eza -l'
       alias reload='home-manager switch'
       alias rimraf='rm -rf'
+      alias sc='pwd > ~/.config/current_project'
+      alias switch='home-manager switch'
+      alias vimrc='nvim ~/.config/home-manager/home.nix'
+      alias j='just'
+
+      # Source any secrets
+      if [ -f ~/.secrets.sh ]; then
+        source ~/.secrets.sh
+      fi
 
       # Actually enable the packages installed above
       source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
       source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
       setopt autocd
+
+      # Enable direnv
       eval "$(direnv hook zsh)"
+
+      # Go to my current project
+      if [ -f ~/.config/current_project ]; then
+        gp
+      fi
     '';
   };
 
