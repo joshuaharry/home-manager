@@ -39,6 +39,10 @@
     pkgs.pyright
     pkgs.ruff
     pkgs.uv
+
+    # Ruby
+    pkgs.ruby_3_3
+    pkgs.rubyPackages_3_3.rails
   ];
 
   # Configure direnv
@@ -163,6 +167,7 @@
             nnoremap <silent> <leader>k :bprev<CR>
             nnoremap <silent> <leader>f za
             nnoremap <silent> <leader>c :noh<CR>
+            nnoremap <silent> <leader>v :Vex<CR>
 
             " Telescope
             nnoremap <silent> <leader>sf <cmd>lua require('telescope.builtin').find_files()<CR>
@@ -279,7 +284,9 @@
         require("conform").format({ lsp_fallback = true })
       end, {})
 
-      require("CopilotChat").setup({})
+      require("CopilotChat").setup({
+        model = "claude-sonnet-4",
+      })
 
       require("telescope").setup({
         defaults = {
