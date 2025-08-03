@@ -19,6 +19,7 @@
   # environment.
   home.packages = [
     pkgs.eza
+    pkgs.go
     pkgs.lf
     pkgs.gh
     pkgs.fzf
@@ -27,6 +28,7 @@
     pkgs.jetbrains-mono
     pkgs.just
     pkgs.btop
+    pkgs.postgresql_17
 
     # Node JS
     pkgs.nodejs_22
@@ -78,6 +80,7 @@
 
   # Configure Ghostty
   home.file.".config/ghostty/config".text = ''
+     theme = light:AtomOneLight,dark:0x96f
      keybind = cmd+a=text:\x1ba
      keybind = cmd+b=text:\x1bb
      keybind = cmd+c=text:\x1bc
@@ -94,9 +97,7 @@
      keybind = cmd+n=text:\x1bn
      keybind = cmd+o=text:\x1bo
      keybind = cmd+p=text:\x1bp
-     keybind = cmd+q=text:\x1bq
      keybind = cmd+s=text:\x1bs
-     keybind = cmd+t=text:\x1bt
      keybind = cmd+u=text:\x1bu
      keybind = cmd+v=text:\x1bv
      keybind = cmd+w=text:\x1bw
@@ -185,9 +186,6 @@
             " Copilot Chat Toggle
             vnoremap <silent> <leader>c :CopilotChat<CR>
 
-            " Colorscheme
-            colorscheme nightfox
-
             lua << EOF
       local lspconfig = require('lspconfig')
       lspconfig.pyright.setup({})
@@ -275,6 +273,7 @@
           python = { "ruff_format", lsp_format = "fallback" },
           rust = { "rustfmt", lsp_format = "fallback" },
           javascript = { "prettier", stop_after_first = true },
+          html = { "prettier", stop_after_first = true },
           typescript = { "prettier", stop_after_first = true },
           typescriptreact = { "prettier", stop_after_first = true },
         },
@@ -365,6 +364,8 @@
       alias switch='home-manager switch'
       alias vimrc='nvim ~/.config/home-manager/home.nix'
       alias j='just'
+      alias secrets='nvim ~/.secrets.sh'
+      alias bclean='git branch | python -c "import sys; import os; [os.system(f\"git branch -D {x.strip()}\") for x in sys.stdin.readlines() if \"main\" not in x and \"*\" not in x]"'
 
       # Source any secrets
       if [ -f ~/.secrets.sh ]; then
@@ -375,9 +376,6 @@
       source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
       source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
       setopt autocd
-
-      # Enable direnv
-      eval "$(direnv hook zsh)"
 
       # Go to my current project
       if [ -f ~/.config/current_project ]; then
