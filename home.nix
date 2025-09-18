@@ -20,8 +20,10 @@
   home.packages = [
     pkgs.eza
     pkgs.go
+    pkgs.gopls
     pkgs.lf
     pkgs.gh
+    pkgs.fio
     pkgs.fzf
     pkgs.ripgrep
     pkgs.nixpkgs-fmt
@@ -33,6 +35,7 @@
     # Node JS
     pkgs.nodejs_22
     pkgs.nodePackages.prettier
+    pkgs.nodePackages.pnpm
     pkgs.typescript-language-server
     pkgs.vscode-langservers-extracted
 
@@ -80,30 +83,11 @@
 
   # Configure Ghostty
   home.file.".config/ghostty/config".text = ''
-     theme = light:AtomOneLight,dark:0x96f
-     keybind = cmd+a=text:\x1ba
-     keybind = cmd+b=text:\x1bb
-     keybind = cmd+c=text:\x1bc
-     keybind = cmd+d=text:\x1bd
-     keybind = cmd+e=text:\x1be
-     keybind = cmd+f=text:\x1bf
-     keybind = cmd+g=text:\x1bg
-     keybind = cmd+h=text:\x1bh
-     keybind = cmd+i=text:\x1bi
-     keybind = cmd+j=text:\x1bj
-     keybind = cmd+k=text:\x1bk
-     keybind = cmd+l=text:\x1bl
-     keybind = cmd+m=text:\x1bm
-     keybind = cmd+n=text:\x1bn
-     keybind = cmd+o=text:\x1bo
-     keybind = cmd+p=text:\x1bp
-     keybind = cmd+s=text:\x1bs
-     keybind = cmd+u=text:\x1bu
-     keybind = cmd+v=text:\x1bv
-     keybind = cmd+w=text:\x1bw
-     keybind = cmd+x=text:\x1bx
-     keybind = cmd+y=text:\x1by
-     keybind = cmd+z=text:\x1bz
+     theme = light:Atom One Light,dark:0x96f
+     # Remap Cmd+N to Ctrl+N
+     keybind = super+n=text:\x0E
+     # Remap Cmd+P to Ctrl+P
+     keybind = super+p=text:\x10
   '';
 
   # Configure neovim
@@ -119,7 +103,6 @@
     plugins = with pkgs.vimPlugins; [
       # AI
       CopilotChat-nvim
-      copilot-vim
       # Fuzzy searching
       telescope-nvim
       # Autopairs
@@ -167,7 +150,6 @@
             nnoremap <silent> <leader>j :bnext<CR>
             nnoremap <silent> <leader>k :bprev<CR>
             nnoremap <silent> <leader>f za
-            nnoremap <silent> <leader>c :noh<CR>
             nnoremap <silent> <leader>v :Vex<CR>
 
             " Telescope
@@ -184,12 +166,14 @@
             nnoremap <silent> <leader>d :close<CR>
 
             " Copilot Chat Toggle
+            nnoremap <silent> <leader>c :CopilotChat<CR>
             vnoremap <silent> <leader>c :CopilotChat<CR>
 
             lua << EOF
       local lspconfig = require('lspconfig')
       lspconfig.pyright.setup({})
       lspconfig.ts_ls.setup({})
+      lspconfig.gopls.setup({})
 
       local cmp = require("cmp")
 
@@ -276,6 +260,7 @@
           html = { "prettier", stop_after_first = true },
           typescript = { "prettier", stop_after_first = true },
           typescriptreact = { "prettier", stop_after_first = true },
+          go = { "gofmt", stop_after_first = true },
         },
       })
 
@@ -366,6 +351,7 @@
       alias j='just'
       alias secrets='nvim ~/.secrets.sh'
       alias bclean='git branch | python -c "import sys; import os; [os.system(f\"git branch -D {x.strip()}\") for x in sys.stdin.readlines() if \"main\" not in x and \"*\" not in x]"'
+      alias scratch='cd ~/Documents/Scratch'
 
       # Source any secrets
       if [ -f ~/.secrets.sh ]; then
@@ -376,11 +362,6 @@
       source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
       source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
       setopt autocd
-
-      # Go to my current project
-      if [ -f ~/.config/current_project ]; then
-        gp
-      fi
     '';
   };
 
