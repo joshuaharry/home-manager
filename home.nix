@@ -45,6 +45,9 @@
     pkgs.ruff
     pkgs.uv
 
+    # Rust
+    pkgs.rustup
+
     # Ruby
     pkgs.ruby_3_3
     pkgs.rubyPackages_3_3.rails
